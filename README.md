@@ -1,17 +1,53 @@
-# Next-Gen Shop - Full Stack E-Commerce System 🛍️
+# 🛒 Laravel E-Commerce System (Web + API)
 
-A professional E-commerce platform built with **Laravel 11**, **MySQL**, and **Tailwind CSS**. This project features a robust backend API and a dynamic Admin Dashboard.
+A modern **E-Commerce Application** built with Laravel featuring:
 
-## 🚀 Key Features
-* **Authentication:** Secure login/registration using Laravel Breeze.
-* **Admin Dashboard:** Manage products, orders, and users.
-* **Product Management:** Full CRUD operations for categories and products.
-* **Shopping Cart:** Functional cart system for users.
-* **Search:** Advanced search functionality for products.
+- 🧑‍💼 Admin Panel (Blade UI)
+- 🛍️ Customer Shopping System
+- ⚡ REST API (Sanctum Auth)
+- 🧠 Clean Architecture (Service Layer)
+- 🔐 Policy-based Security
+- 📊 Performance Optimized Queries
 
-## 🛠️ Tech Stack
-* **Backend:** PHP 8.2+, Laravel 11
-* **Database:** MySQL
-* **Frontend:** Blade, Tailwind CSS, Alpine.js
-* **Tools:** Git, GitHub, Postman
-*
+---
+
+# 🚀 Features
+
+## 👤 Authentication
+- User registration & login (Blade + API)
+- Laravel Sanctum token authentication
+- Role-based system (Admin / Customer)
+
+## 🛍️ Products
+- Admin CRUD (Create, Update, Delete)
+- API endpoints for products
+- Pagination + optimized queries
+
+## 🛒 Cart System
+- Add to cart
+- Remove from cart
+- Quantity handling
+
+## 📦 Orders
+- Checkout system
+- Order history
+- Admin order management
+- Status system (pending → completed)
+
+## 🔐 Security
+- Laravel Policies (Admin-only actions)
+- Protected API routes (Sanctum)
+
+## ⚡ Performance Optimization
+- Eager Loading (avoid N+1 problem)
+- Pagination
+- Indexed columns (email)
+- Optimized queries using select()
+
+## 🧪 Testing Features
+- 1000+ users seeded
+- Search system with performance testing
+
+---
+
+# 🏗️ Architecture
