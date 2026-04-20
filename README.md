@@ -1,4 +1,4 @@
-# 🛒 NEXT GEN SHOP(E-Commerce) (Web + API)
+# 🛒 NEXT GEN SHOP (Web + API)
 
 A modern **E-Commerce Application** built with Laravel featuring:
 
@@ -45,7 +45,7 @@ A modern **E-Commerce Application** built with Laravel featuring:
 - Optimized queries using select()
 
 ## 🧪 Testing Features
-- 1000+ users seeded
+- 20000+ users seeded
 - Search system with performance testing
 
 ---
