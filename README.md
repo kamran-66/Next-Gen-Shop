@@ -1,4 +1,4 @@
-# 🛒 Laravel E-Commerce System (Web + API)
+# 🛒 NEXT GEN SHOP(E-Commerce) (Web + API)
 
 A modern **E-Commerce Application** built with Laravel featuring:
 
