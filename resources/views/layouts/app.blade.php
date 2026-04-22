@@ -77,18 +77,20 @@
 
     <header class="bg-white shadow p-4 flex justify-between items-center">
         
-        <form method="GET" action="/users-test" class="flex gap-2 items-center flex-1 max-w-md ml-10">
-            <input 
-                type="text" 
-                name="search" 
-                value="{{ request('search') }}"
-                placeholder="Search email or name..."
-                class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            >
-            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-                Search
-            </button>
-        </form>
+  <form method="GET" 
+      action="{{ request()->is('products*') ? route('products.index') : url('/users-test') }}" 
+      class="flex gap-2 items-center flex-1 max-w-md ml-10">
+    
+    <input type="text" 
+           name="search" 
+           value="{{ request('search') }}" 
+           placeholder="{{ request()->is('products*') ? 'Search products or categories...' : 'Search email or name...' }}"
+           class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600">
+
+    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+        Search
+    </button>
+</form>
 
         <div class="relative mr-5" x-data="{ open: false }">
             <button @click="open = !open" @click.away="open = false" class="flex items-center gap-2 focus:outline-none bg-gray-50 p-2 rounded-lg hover:bg-gray-100 transition">
@@ -131,5 +133,33 @@
 </script>
 @endif
 
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    var options = {
+        series: [{
+            name: 'Total Orders',
+            data: [12, 18, 15, 25, 21, 35, 30] // Ye data baad mein hum backend se layenge
+        }],
+        chart: {
+            type: 'area',
+            height: 300,
+            toolbar: { show: false },
+            zoom: { enabled: false }
+        },
+        colors: ['#6366f1'], // NextGen Indigo
+        fill: {
+            type: 'gradient',
+            gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.1 }
+        },
+        dataLabels: { enabled: false },
+        stroke: { curve: 'smooth', width: 3 },
+        xaxis: {
+            categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#salesChart"), options);
+    chart.render();
+</script>
 </body>
 </html>

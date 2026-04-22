@@ -12,11 +12,34 @@ class ProductController extends Controller
 
 
     // Show all products
-    public function index()
-    {
-        $products = Product::latest()->get();
-        return view('products.index', compact('products'));
-    }
+    // public function index()
+    // {
+    //     $products = Product::latest()->get();
+    //     return view('products.index', compact('products'));
+    // }
+
+
+
+    public function index(Request $request)
+{
+    $search = $request->input('search');
+
+    $products = Product::query()
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                // Purani search (Name)
+                $q->where('name', 'LIKE', "%{$search}%")
+                // Nayi search (Category) - Ab category se bhi search hoga
+                ->orWhere('category', 'LIKE', "%{$search}%")
+                // Agar aap description se bhi search karna chahte hain
+                ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        })
+        
+        ->paginate(20);
+
+    return view('products.index', compact('products'));
+}
 
     // Show create form
     public function create()

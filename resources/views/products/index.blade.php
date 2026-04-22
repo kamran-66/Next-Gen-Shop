@@ -1,123 +1,103 @@
 <x-layouts.app>
-
-<div class="p-6">
-
-    <h2 class="text-2xl text-black font-bold mb-4">Products</h2>
-
-    <a href="{{ route('products.create') }}" 
-       class="bg-indigo-600 text-white px-4 py-2 rounded">Add Product</a><br><br>
-       
-
-    {{-- @if(session('success'))
-        <p class="text-green-600 mt-2">{{ session('success') }}</p>
-    @endif --}}
-
-
-@if(session('success'))
-    <div id="success-alert" style="padding: 10px; background-color: #d4edda; color: #155724; margin-bottom: 10px;">
-        {{ session('success') }}
+<div class="p-6 bg-gray-50 min-h-screen">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Product Catalog</h2>
+            <p class="text-gray-500 text-sm">Manage your inventory and showcase products.</p>
+        </div>
+        <a href="{{ route('products.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95">
+            + Add New Product
+        </a>
     </div>
-@endif
 
-@if(session('error'))
-    <div id="error-alert" style="padding: 10px; background-color: #f8d7da; color: #721c24; margin-bottom: 10px;">
-        {{ session('error') }}
-    </div>
-@endif
+    @if(session('success'))
+        <div id="success-alert" class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 p-4 mb-6 rounded-r-lg shadow-sm animate-pulse" role="alert">
+            <div class="flex items-center">
+                <span class="mr-2">✅</span>
+                <p class="font-medium">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
 
-    <div class="grid grid-cols-3 gap-6 mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         @foreach($products as $product)
-        <div class="bg-white p-4 shadow rounded">
+        <div class="group bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
+            
 
-            @if($product->image)
-                <img src="{{ asset('storage/'.$product->image) }}" class="h-40 w-full object-cover">
-            @endif
-
-            <h3 class="font-bold mt-2">{{ $product->name }}</h3>
-            <p>{{ $product->price }} PKR</p>
-
-             <!-- 🔥 ADD TO CART BUTTON -->
-    @if($product->stock > 0)
-    <p class="text-green-600 font-bold">In Stock: {{ $product->stock }}</p>
-    
-    {{-- <form action="{{ route('cart.add', $product->id) }}" method="POST">
-        @csrf
-        <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" class="border rounded w-16 px-2 py-1 mb-2">
-        
-        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded mt-2 hover:bg-green-700">
-            Add to Cart
-        </button>
-    </form> --}}
-
-
-    <form action="{{ route('cart.add') }}" method="POST">
-    @csrf
-    <input type="hidden" name="product_id" value="{{ $product->id }}">
-    <button type="submit " class="bg-green-600 text-white px-3 py-1 rounded mt-2 hover:bg-green-700">Add to Cart</button>
-</form>
-
-@else
-    <p class="text-red-600 font-bold mt-2">Out of Stock</p>
-    <button disabled class="bg-gray-400 text-white px-3 py-1 rounded mt-2 cursor-not-allowed">
-        Add to Cart
-    </button>
-@endif
-
-            <div class="flex gap-2 mt-2">
-                <a href="{{ route('products.edit',$product) }}" class="bg-yellow-500 px-3 py-1 text-white rounded">Edit</a>
-
-                <form action="{{ route('products.destroy',$product) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button class="bg-red-500 px-3 py-1 text-white rounded">Delete</button>
-                </form>
+            <div class="mt-2 flex items-center justify-between">
+    <span class="text-sm font-medium text-gray-500">Available Stock:</span>
+    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $product->stock > 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+        {{ $product->stock }} units
+    </span>
+</div>
+            <div class="relative overflow-hidden bg-gray-100 aspect-square">
+                @if($product->image)
+                    <img src="{{ asset('storage/'.$product->image) }}" 
+                         class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                         alt="{{ $product->name }}">
+                @else
+                    <div class="h-full w-full flex flex-col items-center justify-center text-gray-400">
+                        <span class="text-4xl mb-2">📸</span>
+                        <span class="text-xs uppercase font-bold tracking-widest">No Image</span>
+                    </div>
+                @endif
+                
+                <div class="absolute top-3 right-3">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm {{ $product->stock > 0 ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white' }}">
+                        {{ $product->stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                    </span>
+                </div>
             </div>
 
+            <div class="p-5 flex-grow">
+                <h3 class="text-lg font-bold text-gray-800 line-clamp-1 mb-1">{{ $product->name }}</h3>
+                <div class="flex items-baseline gap-1 mb-4">
+                    <span class="text-2xl font-black text-indigo-600">Rs. {{ number_format($product->price) }}</span>
+                    <span class="text-xs text-gray-400 font-bold uppercase">PKR</span>
+                </div>
+                
+                @if($product->stock > 0)
+                    <form action="{{ route('cart.add') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <button type="submit" class="w-full bg-gray-900 hover:bg-indigo-600 text-white py-3 rounded-xl font-bold transition-colors duration-300 flex items-center justify-center gap-2">
+                            <span>🛒</span> Add to Cart
+                        </button>
+                    </form>
+                @else
+                    <button disabled class="w-full bg-gray-100 text-gray-400 py-3 rounded-xl font-bold cursor-not-allowed">
+                        Out of Stock
+                    </button>
+                @endif
+            </div>
+
+            <div class="px-5 py-4 bg-gray-50/50 flex gap-3 border-t border-gray-50">
+                <a href="{{ route('products.edit', $product) }}" class="flex-1 text-center py-2 rounded-lg text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 transition-colors">
+                    Edit
+                </a>
+                <form action="{{ route('products.destroy', $product) }}" method="POST" class="flex-1">
+                    @csrf
+                    @method('DELETE')
+                    <button onclick="return confirm('Are you sure you want to delete this product?')" 
+                            class="w-full py-2 rounded-lg text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors">
+                        Delete
+                    </button>
+                </form>
+            </div>
         </div>
         @endforeach
     </div>
-
 </div>
 
+<div class="p-4 bg-gray-50 border-t border-gray-100">
+                {{ $products->links() }}
+            </div>
+        </div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Success message hide karein
-        setTimeout(function() {
-            let successAlert = document.getElementById('success-alert');
-            if (successAlert) {
-                successAlert.style.display = 'none';
-            }
-        }, 3000); // 3000 milliseconds = 3 seconds
-
-        // Error message hide karein
-        setTimeout(function() {
-            let errorAlert = document.getElementById('error-alert');
-            if (errorAlert) {
-                errorAlert.style.display = 'none';
-            }
-        }, 3000);
-    });
+    setTimeout(() => {
+        const alert = document.getElementById('success-alert');
+        if(alert) alert.style.display = 'none';
+    }, 4000);
 </script>
-
 </x-layouts.app>
-
-
-
-
-{{-- @if($product->stock > 0)
-    <p class="text-green-600 font-bold">In Stock: {{ $product->stock }}</p>
-    
-    <form action="{{ route('cart.add', $product->id) }}" method="POST">
-        @csrf
-        <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" class="border rounded w-16 px-2 py-1 mb-2">
-        
-        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded mt-2 hover:bg-green-700">
-            Add to Cart
-        </button>
-    </form>
-@else
-    <p class="text-red-600 font-bold mt-2">Out of Stock</p>
-    <button disabled class="bg-gray-400 text-white px-3 py-1 rounded mt-2 cursor-not-allowed">
-        Add to Cart
-    </button>
-@endif --}}
