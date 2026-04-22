@@ -18,6 +18,9 @@ A modern **E-Commerce Application** built with Laravel featuring:
 
 ### Modern Admin Dashboard
 ![Dashboard](screenshots/dashboard-preview.png)
+![Dashboard](screenshots/products.png)
+![Dashboard](screenshots/cart.png)
+![Dashboard](screenshots/order.png)
 
 ### User Authentication
 ![Login Page](screenshots/login.png)
