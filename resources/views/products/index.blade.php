@@ -72,17 +72,18 @@
             </div>
 
             <div class="px-5 py-4 bg-gray-50/50 flex gap-3 border-t border-gray-50">
-                <a href="{{ route('products.edit', $product) }}" class="flex-1 text-center py-2 rounded-lg text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 transition-colors">
-                    Edit
-                </a>
-                <form action="{{ route('products.destroy', $product) }}" method="POST" class="flex-1">
-                    @csrf
-                    @method('DELETE')
-                    <button onclick="return confirm('Are you sure you want to delete this product?')" 
-                            class="w-full py-2 rounded-lg text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors">
-                        Delete
-                    </button>
-                </form>
+
+               @if(auth()->user() && auth()->user()->is_admin) 
+    {{-- <div class="flex gap-6"> --}}
+        <a href="{{ route('products.edit', $product->id) }}" class="flex-1 text-center py-2 rounded-lg text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 transition-colors">Edit</a>
+        
+        <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="flex-1" onsubmit="return confirm('Are you sure?')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="w-full py-2 rounded-lg text-sm font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors">Delete</button>
+        </form>
+    {{-- </div> --}}
+@endif
             </div>
         </div>
         @endforeach

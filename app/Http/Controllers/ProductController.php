@@ -122,6 +122,9 @@ class ProductController extends Controller
     // Show edit form
     public function edit(Product $product)
     {
+         if (!auth()->user()->is_admin) {
+        abort(403, 'Unauthorized action.');
+    }
         return view('products.edit', compact('product'));
     }
 
@@ -147,6 +150,9 @@ class ProductController extends Controller
     // Delete
     public function destroy(Product $product)
     {
+         if (!auth()->user()->is_admin) {
+        abort(403, 'Unauthorized action.');
+    }
         $product->delete();
         return back()->with('success', 'Deleted');
     }

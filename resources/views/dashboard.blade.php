@@ -114,11 +114,13 @@
         @endif
     </div>
 
+    @if(auth()->user() && auth()->user()->is_admin)
+
     <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mt-8">
     <h3 class="text-lg font-bold mb-4">Weekly Sales Analytics</h3>
     <div id="salesChart"></div>
 </div>
-
+@endif
 
 </div>
 </x-layouts.app>
