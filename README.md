@@ -68,4 +68,4 @@ A modern **E-Commerce Application** built with Laravel featuring:
 # 🏗️ Architecture
 - Service Layer Implementation
 - Notification Engine
-- SMTP/LOg Mailer
+- SMTP/Log Mailer
