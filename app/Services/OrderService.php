@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Notifications\OrderPlacedNotification;
+use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
@@ -11,31 +14,49 @@ class OrderService
         $cart = $user->cart;
 
         if (!$cart || $cart->items->isEmpty()) {
-            throw new \Exception('Cart empty');
+            throw new \Exception('Cart is empty');
         }
 
-        $total = 0;
+        // DB Transaction start (For Safety)
+        return DB::transaction(function () use ($user, $cart) {
+            
+            // 1. Total Calculate
+            $total = $cart->items->sum(function ($item) {
+                return $item->product->price * $item->quantity;
+            });
 
-        foreach ($cart->items as $item) {
-            $total += $item->product->price * $item->quantity;
-        }
-
-        $order = Order::create([
-            'user_id' => $user->id,
-            'total' => $total,
-            'status' => 'pending'
-        ]);
-
-        foreach ($cart->items as $item) {
-            $order->items()->create([
-                'product_id' => $item->product_id,
-                'quantity' => $item->quantity,
-                'price' => $item->product->price
+            // 2. Order Create
+            $order = Order::create([
+                'user_id' => $user->id,
+                'total'   => $total,
+                'status'  => 'pending'
             ]);
-        }
 
-        $cart->items()->delete();
+            // 3. Items Transfer & Stock Management
+            foreach ($cart->items as $item) {
+                // Order Item save
+                $order->items()->create([
+                    'product_id' => $item->product_id,
+                    'quantity'   => $item->quantity,
+                    'price'      => $item->product->price,
+                ]);
 
-        return $order->load('items.product');
+                // Stock kam karein
+                $item->product->decrement('stock', $item->quantity);
+            }
+
+            // 4. Delete Cart Items
+            $cart->items()->delete();
+
+            // 5. Send Notification
+            $user->notify(new OrderPlacedNotification($order));
+
+            return $order;
+        });
+    }
+
+    public function updateStatus(Order $order, $status)
+    {
+        return $order->update(['status' => $status]);
     }
 }

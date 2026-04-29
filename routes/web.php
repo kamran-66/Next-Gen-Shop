@@ -37,30 +37,48 @@ Route::middleware('auth')->group(function () {
 
     // For Performance Testing
 
+
     Route::get('/users-test', function (Illuminate\Http\Request $request) {
 
         $search = $request->query('search');
 
-    $users = User::when($search, function ($query) use ($search) {
-        $query->where('name', 'like', "%$search%")
-              ->orWhere('email', 'like', "%$search%");
+            $users = User::when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%");
     })
-    ->latest()
-    ->paginate(10)
-    ->withQueryString(); // 🔥 keep search in pagination
+            ->latest()
+            ->paginate(10)
+            ->withQueryString(); // 🔥 keep search in pagination
 
-    return view('users_list', compact('users', 'search'));
-    });
+            return view('users_list', compact('users', 'search'));
+            });
+
+
+
+    //Notification Route
+
+
+            Route::get('/notifications', function () {
+            $notifications = auth()->user()->notifications;
+
+            return view('notifications', compact('notifications'));
+        });
+
+            Route::post('/notifications/read/{id}', function ($id) {
+            $note = auth()->user()->notifications()->find($id);
+            $note->markAsRead();
+
+            return back();
+        });
 
 
     //
-
+    
+    // Cart Controllers
+    
+    
     Route::get('/cart', [CartController::class, 'index']);
-  
-
-    Route::post('/checkout', [OrderController::class, 'store']);
-
-
+    
      Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
    //addToCart
@@ -69,14 +87,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
 
-    Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
+    // Order Controller
 
+    Route::post('/checkout', [OrderController::class, 'store']);
+
+    Route::post('/checkout', [OrderController::class, 'store'])->name('checkout');
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
 
 
     //  Route::middleware('auth:sanctum')->apiResource('products', Api\ProductController::class);
+
+
+    // ProductController Routes
 
     Route::get('/products', [ProductController::class,'index'])->name('products.index');
     Route::get('/products/{products}show', [ProductController::class,'show'])->name('products.show');

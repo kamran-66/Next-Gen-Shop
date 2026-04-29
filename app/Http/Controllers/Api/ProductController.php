@@ -14,10 +14,10 @@ class ProductController extends Controller
 {
     public function index()
     {
-        // Database se saari products uthayein
+        
         $products = Product::all();
 
-        // Inhein JSON format mein wapis bhein
+        
         return response()->json([
             'success' => true,
             'data' => $products

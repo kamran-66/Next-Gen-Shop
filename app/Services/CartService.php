@@ -3,33 +3,43 @@
 namespace App\Services;
 
 use App\Models\Cart;
+use App\Models\Product;
+use Exception;
 
 class CartService
 {
-    public function add($user, $productId)
+    public function addItem($user, $productId, $quantity = 1)
     {
-        $cart = $user->cart ?? Cart::create(['user_id' => $user->id]);
+        $product = Product::findOrFail($productId);
+        
+        // 1. Cart Search or Create
+        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
 
-        $item = $cart->items()->where('product_id', $productId)->first();
+        // 2. Check karein ke item pehle se cart mein hai?
+        $cartItem = $cart->items()->where('product_id', $productId)->first();
+        $currentInCart = $cartItem ? $cartItem->quantity : 0;
 
-        if ($item) {
-            $item->increment('quantity');
+        // 3. STOCK VALIDATION (Handle Service)
+        if (($currentInCart + $quantity) > $product->stock) {
+            throw new Exception('Cannot add more. Only ' . $product->stock . ' items in stock.');
+        }
+
+        // 4. Update or Create
+        if ($cartItem) {
+            $cartItem->increment('quantity', $quantity);
         } else {
             $cart->items()->create([
                 'product_id' => $productId,
-                'quantity' => 1
+                'quantity' => $quantity,
             ]);
         }
 
         return $cart->load('items.product');
     }
 
-    public function remove($user, $productId)
+    public function removeItem($cartItemId)
     {
-        $cart = $user->cart;
-
-        $cart->items()->where('product_id', $productId)->delete();
-
-        return $cart->load('items.product');
+        // CartItem ID se delete karna behtar hai
+        return \App\Models\CartItem::where('id', $cartItemId)->delete();
     }
 }

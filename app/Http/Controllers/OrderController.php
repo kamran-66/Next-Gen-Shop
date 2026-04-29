@@ -3,95 +3,59 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\User;
 use App\Models\CartItem;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use App\Services\OrderService;
+
 
 class OrderController extends Controller
 {
 
-    // Show all orders (ADMIN)
-public function index()
-{
-    if (auth()->user()->role !== 'admin') {
-        abort(403);
+
+    protected $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
     }
 
-    $orders = Order::with('items.product', 'user')->latest()->get();
+    // Admin List
+    public function index()
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
 
-    return view('orders.index', compact('orders'));
-}
-
-// Update order status
-public function update(Request $request, Order $order)
-{
-    if (auth()->user()->role !== 'admin') {
-        abort(403);
+        $orders = Order::with('items.product', 'user')->latest()->get();
+        return view('orders.index', compact('orders'));
     }
 
-    $order->update([
-        'status' => $request->status
-    ]);
+    // Update Status
+    public function update(Request $request, Order $order)
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
 
-    return back()->with('success', 'Order updated');
-}
+        $this->orderService->updateStatus($order, $request->status);
+        return back()->with('success', 'Order updated');
+    }
 
-
-
- //Store
+    // Store Order
     public function store()
     {
-        $user = auth()->user();
-        $cart = $user->cart;
+        try {
+            $user = auth()->user();
+            $order = $this->orderService->checkout($user);
 
-        if (!$cart || $cart->items->isEmpty()) {
-            return back()->with('error', 'Cart is empty');
+            return redirect()->route('products.index')->with('success', 'Order Successful! Notification sent.');
+            
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        // 🔥 Calculate total
-        $total = 0;
-
-        foreach ($cart->items as $item) {
-            $total += $item->product->price * $item->quantity;
-        }
-
-        // 🔥 Create order
-        $order = Order::create([
-            'user_id' => $user->id,
-            'total' => $total,
-            'status' => 'pending'
-        ]);
-
-        // 🔥 Save order items
-        foreach ($cart->items as $item) {
-            $order->items()->create([
-                'product_id' => $item->product_id,
-                'quantity' => $item->quantity,
-                'price' => $item->product->price,
-            ]);
-        }
- // 2. Loop through Cart Items to deduct stock
-    $cartItems = CartItem::where('cart_id', auth()->user()->cart->id)->get();
-
-    foreach ($cartItems as $item) {
-        // --- YE LINE STOCK KAM KAREGI ---
-        $product = $item->product;
-        $product->decrement('stock', $item->quantity);
-
-        // Order details save karein (order_items table mein)
-        OrderItem::create([
-            'order_id' => $order->id,
-            'product_id' => $item->product_id,
-            'quantity' => $item->quantity,
-            'price' => $item->product->price
-        ]);
     }
-
-    // 3. Cart khali karein
-    auth()->user()->cart->items()->delete();
-
-    return redirect()->route('products.index')->with('success', 'Order Successful! Stock Updated.');
-}
 
   
 
