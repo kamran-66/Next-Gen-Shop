@@ -12,14 +12,14 @@ class CartService
     {
         $product = Product::findOrFail($productId);
         
-        // 1. Cart Search or Create
+       
         $cart = Cart::firstOrCreate(['user_id' => $user->id]);
 
-        // 2. Check karein ke item pehle se cart mein hai?
+       
         $cartItem = $cart->items()->where('product_id', $productId)->first();
         $currentInCart = $cartItem ? $cartItem->quantity : 0;
 
-        // 3. STOCK VALIDATION (Handle Service)
+        
         if (($currentInCart + $quantity) > $product->stock) {
             throw new Exception('Cannot add more. Only ' . $product->stock . ' items in stock.');
         }
@@ -37,9 +37,28 @@ class CartService
         return $cart->load('items.product');
     }
 
-    public function removeItem($cartItemId)
-    {
-        // CartItem ID se delete karna behtar hai
-        return \App\Models\CartItem::where('id', $cartItemId)->delete();
+    // public function removeItem($cartItemId)
+    // {
+    //     // CartItem ID se delete karna behtar hai
+    //     return \App\Models\CartItem::where('id', $cartItemId)->delete();
+    // }
+
+  public function removeItem($productId)
+{
+    // چونکہ ٹیبل میں user_id نہیں ہے، ہم براہِ راست product_id کو میچ کر کے ڈیلیٹ کریں گے
+    $deleted = \App\Models\CartItem::where('product_id', $productId)->delete();
+
+    if ($deleted) {
+        return response()->json([
+            'status' => true, 
+            'message' => 'Item successfully removed from database'
+        ]);
     }
+
+    return response()->json([
+        'status' => false, 
+        'message' => 'Item not found in database'
+    ], 404);
+}
+
 }

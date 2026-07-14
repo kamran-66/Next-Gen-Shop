@@ -15,18 +15,25 @@ class CartController extends Controller
         $this->service = $service;
     }
 
-    public function index(Request $req)
-    {
-        return $req->user()->cart?->load('items.product');
-    }
+    public function index(Request $request) {
+    $cart = Cart::with('items.product')->where('user_id', $request->user()->id)->first();
+    return response()->json($cart);
+}
+
+    // public function index(Request $req)
+    // {
+    //     return $req->user()->cart?->load('items.product');
+    // }
 
     public function add(Request $req, $productId)
     {
-        return $this->service->add($req->user(), $productId);
+        return $this->service->addItem($req->user(), $productId);
     }
 
     public function remove(Request $req, $productId)
     {
-        return $this->service->remove($req->user(), $productId);
+        // dd($productsId);
+        return $this->service->removeItem($productId);
     }
 }
+

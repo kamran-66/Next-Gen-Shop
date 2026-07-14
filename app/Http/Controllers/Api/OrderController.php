@@ -17,11 +17,97 @@ class OrderController extends Controller
 
     public function checkout(Request $req)
     {
-        return $this->service->checkout($req->user());
+        $req->validate([
+            'shipping_address' => 'required|string',
+            'phone'            => 'required|string',
+            'payment_method'   => 'required|string',
+        ]);
+
+        try {
+            $order = $this->service->checkout($req->user(), $req->all());
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Order placed successfully!',
+                'order'   => $order
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 
     public function index(Request $req)
     {
-        return $req->user()->orders()->with('items.product')->get();
+        try {
+            $orders = $req->user()->orders()->with('items.product')->get();
+
+            return response()->json([
+                'status' => true,
+                'orders' => $orders
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Database Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
+
+
+    public function updateStatus(Request $req, $id)
+    {
+        
+        $req->validate([
+            'status' => 'required|string|in:pending,processing,shipped,completed'
+        ]);
+
+        try {
+            
+            $order = \App\Models\Order::findOrFail($id);
+
+            
+            $order->status = $req->status;
+            $order->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Order status updated successfully to ' . $req->status,
+                'order' => $order
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Database Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+
+    public function allOrders()
+{
+    try {
+        
+        $orders = \App\Models\Order::with(['user', 'items.product'])->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'orders' => $orders
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Database Error: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
